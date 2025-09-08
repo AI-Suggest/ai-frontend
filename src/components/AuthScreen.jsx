@@ -7,6 +7,7 @@ import { apiService } from '../services/api';
 const AuthScreen = ({ onLogin }) => {
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
+  const[passwordError,setPasswordError]= useState("")
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -16,10 +17,12 @@ const AuthScreen = ({ onLogin }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const canvasRef = useRef(null);
-  const handleSubmit = async (e) => {
+ const handleSubmit = async (e) => {
   e.preventDefault();
   setIsLoading(true);
   setError('');
+
+  // 👉 Check password validity before API call
 
   try {
     let user;
@@ -30,7 +33,13 @@ const AuthScreen = ({ onLogin }) => {
       });
        onLogin(user);
     } else {
-      console.log("in auth screen");
+        const passwordErr = getPasswordError(formData.password);
+  if (passwordErr) {
+    setPasswordError(passwordErr);
+    setIsLoading(false);
+    return; // 🚫 stop submit if password invalid
+  }
+    
       user = await apiService.signup({
         username: formData.name,
         email: formData.email,
@@ -53,62 +62,27 @@ const AuthScreen = ({ onLogin }) => {
   }
 };
 
-//   const handleSubmit = async (e) => {
-//   e.preventDefault();
-//   setIsLoading(true);
-//   setError('');
-//   setSuccessMessage('');
 
-//   let user = null; // initialize here
-
-//   try {
-//      if (isLogin) {
-//         user = await apiService.login({
-//           email: formData.email,
-//           password: formData.password,
-//         });
-//       } else {
-//         user = await apiService.signup({
-//           name: formData.name,
-//           email: formData.email,
-//           password: formData.password,
-//         });
-//       }
-//         onLogin(user); 
-//     // if (isLogin) {
-//     //   console.log("login___");
-//     //   user = await login({ email: formData.email, password: formData.password });
-//     // } else {
-//     //   console.log("Sign up");
-//     //   user = await signup({
-//     //     username: formData.name,
-//     //     email: formData.email,
-//     //     password: formData.password,
-//     //   });
-//     //   setIsLogin(true);
-//     //   setFormData({ name: '', email: '', password: '' });
-//     //   setSuccessMessage('Account created successfully! Please log in.');
-//     // }
-   
-//   } catch (error) {
-//     setError(error.message || 'Authentication failed. Please try again.');
-//     // user remains null if API fails
-//   } finally {
-//     onLogin(user); // now safe, user is either object or null
-//     setIsLoading(false);
-//   }
-// };
-
+const getPasswordError = (password) => {
+  if (password.length < 8) return "Password must be at least 8 characters.";
+  if (!/[A-Z]/.test(password)) return "Add at least one uppercase letter.";
+  if (!/[a-z]/.test(password)) return "Add at least one lowercase letter.";
+  if (!/\d/.test(password)) return "Add at least one number.";
+  if (!/[@$!%*?&]/.test(password)) return "Add at least one special character.";
+  return ""; // valid
+};
 
   const handleChange = (e) => {
+  const { name, value } = e.target;
+  setFormData({ ...formData, [name]: value });
 
-    setFormData(prev => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
-    setError('');
-  };
-
+  if (name === "password") {
+    setPasswordError(getPasswordError(value));
+  }else{
+     setPasswordError("");
+  }
+     setError('');
+};
   const handleDemoLogin = () => {
     const demoUser = {
       id: 'demo-user',
@@ -121,6 +95,7 @@ const AuthScreen = ({ onLogin }) => {
     const handleCreateAccountClick = () => {
     setIsLogin(true); // Switch to 'Create account' view
     setError('');// Reset the user input (or any other state)
+    setPasswordError("")
   };
  useEffect(() => {
     const canvas = canvasRef.current;
@@ -274,9 +249,10 @@ const AuthScreen = ({ onLogin }) => {
                 />
               </div>
               <div className="actions">
-                <button type="submit" className="btn">
-                  Sign in
-                </button>
+               <button type="submit" className="btn" disabled={isLoading}>
+  {isLoading ? "Loading..." : "Sign in"}
+</button>
+
             
               </div>
               <div className="toggle">
@@ -305,6 +281,7 @@ const AuthScreen = ({ onLogin }) => {
                   required
                 />
               </div>
+             
               <div className="field">
                 <input className='focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparen'
                   name="password"
@@ -315,6 +292,7 @@ const AuthScreen = ({ onLogin }) => {
                   required
                 />
               </div>
+               {passwordError && <p className="text-red-500 text-sm">{passwordError}</p>}
               <div className="actions">
                 <button
   type="submit"

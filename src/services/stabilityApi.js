@@ -3,7 +3,9 @@
 
 class StabilityAIService {
   constructor() {
-    this.baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+    this.baseUrl = import.meta.env.DEV
+  ? "http://localhost:3000/api"
+  : "import.meta.env.VITE_API_URL";
   }
 
   async generateImage(prompt, options = {}) {
@@ -84,7 +86,7 @@ class StabilityAIService {
   }
   async deleteGeneration(generationId) {
     try {
-      const response = await fetch(`${this.baseUrl}/images/${generationId}`, {
+      const response = await fetch(`${this.baseUrl}/deleteChat/${generationId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${this.getAuthToken()}`,

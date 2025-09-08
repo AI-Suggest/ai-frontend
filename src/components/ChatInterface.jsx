@@ -25,7 +25,7 @@ const[error,setError]=useState("")
   
 
   useEffect(() => {
-    console.log(session,"kkkk___")
+
     scrollToBottom();
   }, [session?.messages]);
 
@@ -41,234 +41,53 @@ const[error,setError]=useState("")
     adjustTextareaHeight();
   }, [prompt]);
 
-  // const generateImage = async (userPrompt) => {
-  //   console.log(session);
-  //   // if (!session) return;
+  const isValidPrompt = (text) => {
+  if (!text) return false;
 
-  //   setIsGenerating(true);
+  const trimmed = text.trim();
 
-  //   // Add user message
-  //   const userMessage = {
-  //     id: Date.now().toString(),
-  //     type: 'user',
-  //     content: userPrompt,
-  //     timestamp: new Date(),
-  //   };
+  // Must be at least 3 characters
+  if (trimmed.length < 3) return false;
 
-  //   const updatedMessages = [...session.messages, userMessage];
-  //   onUpdateSession(session.id, { 
-  //     messages: updatedMessages,
-  //     title: userPrompt.slice(0, 50) + (userPrompt.length > 50 ? '...' : '')
-  //   });
+  // Must contain at least one **space** (so single random letters are blocked)
+  if (!/\s/.test(trimmed)) return false;
 
-  //   try {
-  //     // Call your backend API that integrates with Stability AI
-  //     const result = await apiService.generateImage(userPrompt,session.id);
-      
-  //     const assistantMessage = {
-  //       id: (Date.now() + 1).toString(),
-  //       type: 'assistant',
-  //       content: `Generated image for: "${userPrompt}"`,
-  //       imageUrl: result.imageUrl,
-  //       prompt: userPrompt,
-  //       timestamp: new Date(),
-  //     };
+  // Must contain **mostly letters** (not just numbers or gibberish)
+  const letters = trimmed.replace(/[^a-zA-Z]/g, "");
+  if (letters.length < 3) return false;
 
-  //     onUpdateSession(session.id, {
-  //       messages: [...updatedMessages, assistantMessage],
-  //     });
-  //   } catch (error) {
-  //     console.error('Image generation failed:', error);
-      
-  //     // Fallback with placeholder for demo
-  //     await new Promise(resolve => setTimeout(resolve, 2000));
-      
-  //     const assistantMessage = {
-  //       id: (Date.now() + 1).toString(),
-  //       type: 'assistant',
-  //       content: `Generated image for: "${userPrompt}"`,
-  //       imageUrl: `https://picsum.photos/512/512?random=${Date.now()}`,
-  //       prompt: userPrompt,
-  //       timestamp: new Date(),
-  //     };
+  // Optional: no super long single words like "asdhjasdhjashdj"
+  const words = trimmed.split(/\s+/);
+  if (words.some((w) => w.length > 30)) return false;
 
-  //     onUpdateSession(session.id, {
-  //       messages: [...updatedMessages, assistantMessage],
-  //     });
-  //   } finally {
-  //     setIsGenerating(false);
-  //   }
-  // };
+  return true; // ✅ looks like a real prompt
+};
 
-// const generateImage = async (userPrompt) => {
-//   if (!userPrompt.trim()) return;
 
-//   setIsGenerating(true);
-
-//   try {
-//      let isNewSession = false;
-//     // 1️⃣ Ensure session exists
-//     let currentSession = session;
-//     if (!currentSession) {
-//       currentSession = {
-//         id: Date.now().toString(),
-//         title: userPrompt.slice(0, 50),
-//         messages: [],
-//         createdAt: new Date(),
-//       };
-//         onUpdateSession(currentSession.id, currentSession);
-//       window.dispatchEvent(new CustomEvent('createSession', { detail: currentSession }));
-//         isNewSession = true;
-//     }
-
-//     // 2️⃣ Add user prompt immediately
-//     const userMessage = {
-//       id: Date.now().toString(),
-//       type: 'user',
-//       prompt: userPrompt,
-//       timestamp: new Date(),
-//     };
-//     const updatedMessages = [...(currentSession.messages || []), userMessage];
-
-//     onUpdateSession(currentSession.id, { ...currentSession, messages: updatedMessages, title: currentSession.title });
-//   console.log(currentSession,"currentSession___")
-//   console.log(userMessage,"userMessage_____")
-//     console.log(currentSession.id,"kkkkk")
-//     // 3️⃣ Call backend API
-
-   
-//      const res = await apiService.generateImage(userPrompt, !isNewSession ? currentSession.id : undefined);
-//     console.log("Backend response:", res);
-// const backendSessionId = res?.chatId || currentSession.id; 
-//     // 4️⃣ Map backend response safely
-//     const assistantMessages = res?.data?.messages?.map(msg => ({
-//       id: msg._id || Date.now().toString(),
-//       type: 'assistant',
-//       prompt: msg.prompt,
-//       genImgUrl: msg.genImgUrl,
-//       timestamp: new Date(msg.createdAt || Date.now()),
-//     })) || [];
-// onUpdateSession(backendSessionId, {
-//       ...currentSession,
-//       messages: [...updatedMessages, ...assistantMessages],
-//       title: currentSession.title,
-//     });
-//     // 5️⃣ Update session with assistant messages
-//     // onUpdateSession(currentSession.id, {
-//     //   ...currentSession,
-//     //   messages: [...updatedMessages, ...assistantMessages],
-//     //   title: currentSession.title,
-//     // });
-
-//   } catch (error) {
-//     console.error('Image generation failed:', error);
-//   } finally {
-//     setIsGenerating(false);
-//   }
-// };
-
-// const generateImage = async (userPrompt) => {
-//   if (!userPrompt.trim()) return;
-//   setIsGenerating(true);
-
-//   try {
-//     let test = false
-//     let currentSession = session;
-
-//     // 1️⃣ Create session if none exists
-//     if (!currentSession) {
-//       console.log("heloo form curent session not")
-//       currentSession = {
-//         id: Date.now().toString(), // temp ID
-//         title: userPrompt.slice(0, 50),
-//         messages: [],
-//         createdAt: new Date(),
-//          test:true,
-//       };
-//       onUpdateSession(currentSession.id, currentSession);
-
-//       // Tell sidebar about this new session
-//       window.dispatchEvent(new CustomEvent("createSession", { detail: currentSession }));
-//       // isNewSession = true;
-//     }else{
-
-//     }
-// console.log(currentSession.test,"currentSession.test)___")
-//     let chatId;
-//       console.log(currentSession, "currentsession");
-//        if(currentSession.test){
-//         console.log("heloo")
-//      chatId= null
-//        }else{
-//        chatId= currentSession.id
-//        }
-//        console.log(chatId,"chatId_")
-//     // 2️⃣ Add user message immediately
-//     const userMessage = {
-//       id: Date.now().toString(),
-//       type: "user",
-//       prompt: userPrompt,
-//       timestamp: new Date(),
-//     };
-//     const updatedMessages = [...(currentSession.messages || []), userMessage];
-
-//     onUpdateSession(currentSession.id, {
-//       ...currentSession,
-//       messages: updatedMessages,
-//     });
-
-//     // 3️⃣ Call backend
-// //     const backendSessionId = !isNewSession ? currentSession.id : undefined;
-// // console.log(backendSessionId,"backendSessionId___")
-//     return true;
-//     const res = await apiService.generateImage(userPrompt, chatId);
-//     console.log("Backend response:", res);
-
-//     // 4️⃣ Extract assistant messages
-//     const assistantMessages =
-//       res?.data?.messages?.map((msg) => ({
-//         id: msg._id || Date.now().toString(),
-//         type: "assistant",
-//         prompt: msg.prompt,
-//         genImgUrl: msg.genImgUrl,
-//         timestamp: new Date(msg.createdAt || Date.now()),
-//       })) || [];
-
-//     // 5️⃣ Use backend-assigned session ID
-//     const realSessionId = res?.chatId || currentSession.id;
-//  onUpdateSession(currentSession.id, {
-//       ...currentSession,
-//       messages: [...updatedMessages, ...assistantMessages],
-//       title: currentSession.title,
-//     });
-//     // const updatedSession = {
-//     //   ...currentSession,
-//     //   id: realSessionId, // replace temp ID with backend ID
-//     //   messages: [...updatedMessages, ...assistantMessages],
-//     //   title: currentSession.title,
-//     // };
-
-//     // // Update state
-//     // onUpdateSession(realSessionId, updatedSession);
-
-//     // 🔑 If backend gave us a new chatId, notify sidebar/UI
-//     if (realSessionId !== currentSession.id) {
-//       window.dispatchEvent(
-//         new CustomEvent("updateSessionId", {
-//           detail: { oldId: currentSession.id, newId: realSessionId },
-//         })
-//       );
-//     }
-//   } catch (error) {
-//     console.error("Image generation failed:", error);
-//   } finally {
-//     setIsGenerating(false);
-//   }
-// };  latest code???
+ 
 const generateImage = async (userPrompt) => {
-  if (!userPrompt.trim()) return;
-  setIsGenerating(true);
-setError("")
+   if (!userPrompt.trim()) return;
+
+  // ❌ Handle invalid prompt before calling backend
+  if (!isValidPrompt(userPrompt)) {
+    const errorMessage = {
+      id: Date.now().toString(),
+      type: "error",
+      originalPrompt: userPrompt,
+      prompt: "❌ Incorrect prompt. Please enter a valid description.",
+      timestamp: new Date(),
+    };
+
+    onUpdateSession(session?.id || null, {
+      ...session,
+      messages: [...(session?.messages || []), errorMessage],
+    });
+
+    setError("❌ Incorrect prompt. Please enter a valid description.");
+    return true;
+  }
+
+
   try {
     let currentSession = session;
   if (currentSession) {
@@ -277,25 +96,23 @@ setError("")
     // Optionally, update the session in the backend as well (if necessary)
     onUpdateSession(updatedSession.id, updatedSession);
   }
-    // 1) Create local (UI) session if none exists
+  
     if (!currentSession) {
       currentSession = {
-        id: null,     // local UI id
+        id: null,     
         title: userPrompt.slice(0, 50),
         messages: [],
         createdAt: new Date(),
-                   // <-- server chatId (unknown yet)
+          
       };
-console.log(currentSession,"currentSession")
+
       onUpdateSession(currentSession.id, currentSession);
       window.dispatchEvent(new CustomEvent("createSession", { detail: currentSession }));
     }
-  console.log(currentSession.messages,"lllllll")
+
 
    if (!userPrompt) {
-      console.log("Skipping backend call - session not in DB yet");
-      console.log(currentSession.messages,"lllllll")
-      // Just add the local user message
+     
       const userMessage = {
         id: Date.now().toString(),
         type: "user",
@@ -308,16 +125,12 @@ console.log(currentSession,"currentSession")
         messages: [...currentSession.messages, userMessage],
       });
 
-      return; // stop here
+      return; 
     }
 
-    // 2) Decide chatId for backend
-    // Use ONLY the server-provided chatId. If absent, send undefined (or omit).
+    
     const serverChatId = currentSession.id ?? undefined;
-    console.log(serverChatId,"serverChatId__")
-    // return true;
-  //  return true;
-    // 3) Add user message immediately
+
     const userMessage = {
       id: Date.now().toString(),
       type: "user",
@@ -445,8 +258,7 @@ const downloadImage = async (url, filename = "download.png") => {
 
 
   const regenerateImage = (prompt) => {
-    // console.log(currentSession,"message___")
-    console.log(prompt,"prompt__")
+  
     generateImage(prompt);
   };
 
@@ -550,15 +362,21 @@ const downloadImage = async (url, filename = "download.png") => {
         <div>
           {/* If it's an error */}
           {message.type =="error" ? (
-            <div className="text-red-400 flex flex-col gap-2">
-              <p className='mb-0'> {message.prompt}</p>
-              <button
-                onClick={() => regenerateImage(message.originalPrompt)}
-                className="self-start px-3 py-1 text-sm bg-red-600 hover:bg-red-700 text-white rounded-md transition"
-              >
-                Retry
-              </button>
-            </div>
+          <div className="text-red-400 flex flex-col gap-2">
+    {/* Show original user prompt */}
+    <p className="mb-0 font-medium text-white"> {message.originalPrompt}</p>
+    
+    {/* Show error message */}
+    <p className="mb-0">{message.prompt}</p>
+    
+    {/* Retry button */}
+    <button
+      onClick={() => regenerateImage(message.originalPrompt)}
+      className="self-start px-3 py-1 text-sm bg-red-600 hover:bg-red-700 text-white rounded-md transition"
+    >
+      Retry
+    </button>
+  </div>
           ) : (
             <div>
             <p className={`text-white ${!message.error ? "mb-4 g" : "hhh"}`}>

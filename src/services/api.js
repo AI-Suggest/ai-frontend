@@ -1,5 +1,7 @@
 // API service for backend communication
-const API_BASE_URL = import.meta.env.VITE_REACT_APP_API_URL || 'http://localhost:3000/api';
+const API_BASE_URL = import.meta.env.DEV
+  ? "http://localhost:3000/api"
+  : "import.meta.env.VITE_API_URL";
 
 class ApiService {
   constructor() {
@@ -24,11 +26,10 @@ class ApiService {
     }
 
     try {
-      console.log("heloo__in token");
-      console.log("Fetching URL:", url, config);
+  
       const response = await fetch(url, config);
-      console.log("heloo__of token");
-      console.log(response);
+
+      
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.message || `HTTP error in try! status: ${response.status}`);
@@ -91,7 +92,7 @@ class ApiService {
 
   // Only include id if it is truthy
   if (chatId) bodyData.chatId = chatId;
- console.log(bodyData,"bodyData")
+
   return this.request('/images/generate', {
     method: 'POST',
     body: JSON.stringify(bodyData),

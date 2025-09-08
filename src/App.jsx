@@ -9,8 +9,8 @@ function App() {
   useEffect(() => {
     // Check for existing session
     const savedUser = localStorage.getItem('user');
-    console.log(savedUser,"savedUser")
-    console.log(import.meta.env.VITE_REACT_APP_API_URL,"import.meta.env.VITE_REACT_APP_API_URL")
+ 
+  console.log(import.meta.env.VITE_API_URL,"hhhhhhhh");
     if (savedUser) {
       setUser(JSON.parse(savedUser));
     }
