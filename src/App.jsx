@@ -10,6 +10,7 @@ function App() {
     // Check for existing session
     const savedUser = localStorage.getItem('user');
     console.log(savedUser,"savedUser")
+    console.log(import.meta.env.VITE_REACT_APP_API_URL,"import.meta.env.VITE_REACT_APP_API_URL")
     if (savedUser) {
       setUser(JSON.parse(savedUser));
     }

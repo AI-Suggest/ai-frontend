@@ -17,7 +17,7 @@ const ChatInterface = ({
   const [isGenerating, setIsGenerating] = useState(false);
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
-
+const[error,setError]=useState("")
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -268,7 +268,7 @@ const ChatInterface = ({
 const generateImage = async (userPrompt) => {
   if (!userPrompt.trim()) return;
   setIsGenerating(true);
-
+setError("")
   try {
     let currentSession = session;
   if (currentSession) {
@@ -289,6 +289,26 @@ const generateImage = async (userPrompt) => {
 console.log(currentSession,"currentSession")
       onUpdateSession(currentSession.id, currentSession);
       window.dispatchEvent(new CustomEvent("createSession", { detail: currentSession }));
+    }
+  console.log(currentSession.messages,"lllllll")
+
+   if (!userPrompt) {
+      console.log("Skipping backend call - session not in DB yet");
+      console.log(currentSession.messages,"lllllll")
+      // Just add the local user message
+      const userMessage = {
+        id: Date.now().toString(),
+        type: "user",
+        prompt: userPrompt,
+        timestamp: new Date(),
+      };
+
+      onUpdateSession(currentSession.id, {
+        ...currentSession,
+        messages: [...currentSession.messages, userMessage],
+      });
+
+      return; // stop here
     }
 
     // 2) Decide chatId for backend
@@ -335,7 +355,22 @@ const latestAssistant = res?.newMessage;
 
     onUpdateSession(currentSession.id, updatedSession);
   } catch (error) {
+    console.log(userPrompt,"userPrompt__")
     console.error("Image generation failed:", error);
+       const errorMessage = {
+      id: Date.now().toString(),
+      type: "error",
+       originalPrompt: userPrompt,  
+      prompt: "⚠️ Failed to generate image. Please try again.",
+      timestamp: new Date(),
+    };
+
+    onUpdateSession(session?.id || null, {
+      ...session,
+      messages: [...(session?.messages || []), errorMessage],
+    });
+
+    setError(error.message || "Something went wrong while generating image.");
   } finally {
     setIsGenerating(false);
   }
@@ -360,13 +395,25 @@ const handleSubmit = (e) => {
     }
   };
 
-  const downloadImage = (imageUrl, prompt) => {
-    const link = document.createElement('a');
-    link.href = imageUrl;
-    link.download = `ai-generated-${prompt.slice(0, 20).replace(/\s+/g, '-')}.jpg`;
-    link.click();
-  };
+const downloadImage = async (url, filename = "download.png") => {
+  try {
+    const response = await fetch(url, { mode: "cors" }); // fetch the image
+    const blob = await response.blob();
+    const blobUrl = window.URL.createObjectURL(blob);
 
+    const link = document.createElement("a");
+    link.href = blobUrl;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    // cleanup
+    window.URL.revokeObjectURL(blobUrl);
+  } catch (err) {
+    console.error("Download failed:", err);
+  }
+}
   const copyPrompt = (prompt) => {
     navigator.clipboard.writeText(prompt);
   };
@@ -398,6 +445,8 @@ const handleSubmit = (e) => {
 
 
   const regenerateImage = (prompt) => {
+    // console.log(currentSession,"message___")
+    console.log(prompt,"prompt__")
     generateImage(prompt);
   };
 
@@ -482,54 +531,82 @@ const handleSubmit = (e) => {
       <div className="flex-1 overflow-y-auto p-4 space-y-6 bg-neutral-900">
         
         {session.messages.map((message) => (
-          <div key={message.id} className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}>
-            <div className={`max-w-3xl ${
-              message.type === 'user' 
-                ? 'bg-gradient-to-r from-purple-600 to-blue-600' 
-                : 'bg-zinc-950 backdrop-blur-sm border border-gray-700/50'
-            } rounded-2xl p-4 shadow-lg`}>
-              {message.type === 'user' ? (
-                <p className="text-white whitespace-pre-wrap">{message.prompt}</p>
-              ) : (
-                <div>
-                  <p className="text-white mb-4">{message.prompt}</p>
-                  {message.genImgUrl && (
-                    <div className="relative group">
-                      <img
-                        src={message.genImgUrl}
-                        alt="Generated"
-                        className="rounded-xl max-w-full h-auto shadow-xl border border-gray-600/30"
-                      />
-                      <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 flex gap-2 transition-all duration-200">
-                        <button
-                          onClick={() => downloadImage(message.genImgUrl, message.prompt || message.content)}
-                          className="p-2 bg-black/70 hover:bg-black/90 rounded-lg transition-all duration-200 backdrop-blur-sm"
-                          title="Download image"
-                        >
-                          <Download className="w-4 h-4 text-white" />
-                        </button>
-                        <button
-                          onClick={() => copyPrompt(message.prompt || message.content)}
-                          className="p-2 bg-black/70 hover:bg-black/90 rounded-lg transition-all duration-200 backdrop-blur-sm"
-                          title="Copy prompt"
-                        >
-                          <Copy className="w-4 h-4 text-white" />
-                        </button>
-                        <button
-                          onClick={() => regenerateImage(message.prompt || message.content)}
-                          className="p-2 bg-black/70 hover:bg-black/90 rounded-lg transition-all duration-200 backdrop-blur-sm"
-                          title="Regenerate image"
-                        >
-                          <RefreshCw className="w-4 h-4 text-white" />
-                        </button>
-                      </div>
-                    </div>
-                  )}
+  <div
+    key={message.id}
+    className={`flex ${message.type === "user" ? "justify-end" : "justify-start"}`}
+  >
+    <div
+      className={`max-w-3xl ${
+        message.type === "user"
+          ? "bg-gradient-to-r from-purple-600 to-blue-600"
+          : "bg-zinc-950 backdrop-blur-sm border border-gray-700/50"
+      } rounded-2xl p-4 shadow-lg`}
+    >
+      {message.type === "user" ? (
+        // === USER BUBBLE ===
+        <p className="text-white whitespace-pre-wrap">{message.prompt}</p>
+      ) : (
+        // === ASSISTANT BUBBLE ===
+        <div>
+          {/* If it's an error */}
+          {message.type =="error" ? (
+            <div className="text-red-400 flex flex-col gap-2">
+              <p className='mb-0'> {message.prompt}</p>
+              <button
+                onClick={() => regenerateImage(message.originalPrompt)}
+                className="self-start px-3 py-1 text-sm bg-red-600 hover:bg-red-700 text-white rounded-md transition"
+              >
+                Retry
+              </button>
+            </div>
+          ) : (
+            <div>
+            <p className={`text-white ${!message.error ? "mb-4 g" : "hhh"}`}>
+  {message.prompt}
+</p>
+              {message.genImgUrl && (
+                <div className="relative group">
+                  <img
+                    src={message.genImgUrl}
+                    alt="Generated"
+                    className="rounded-xl max-w-full h-auto shadow-xl border border-gray-600/30"
+                  />
+                  <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 flex gap-2 transition-all duration-200">
+                    <button
+                      onClick={() =>
+                        downloadImage(message.genImgUrl, message.prompt || "image.png")
+                      }
+                      className="p-2 bg-black/70 hover:bg-black/90 rounded-lg transition-all duration-200 backdrop-blur-sm"
+                      title="Download image"
+                    >
+                      <Download className="w-4 h-4 text-white" />
+                    </button>
+                    <button
+                      onClick={() => copyPrompt(message.prompt || message.content)}
+                      className="p-2 bg-black/70 hover:bg-black/90 rounded-lg transition-all duration-200 backdrop-blur-sm"
+                      title="Copy prompt"
+                    >
+                      <Copy className="w-4 h-4 text-white" />
+                    </button>
+                    <button
+                      onClick={() =>
+                        regenerateImage(message.prompt || message.content)
+                      }
+                      className="p-2 bg-black/70 hover:bg-black/90 rounded-lg transition-all duration-200 backdrop-blur-sm"
+                      title="Regenerate image"
+                    >
+                      <RefreshCw className="w-4 h-4 text-white" />
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
-          </div>
-        ))}
+          )}
+        </div>
+      )}
+    </div>
+  </div>
+))}
         
         {isGenerating && (
           <div className="flex justify-start">
@@ -541,7 +618,7 @@ const handleSubmit = (e) => {
               <div className="w-full bg-gray-700/50 rounded-full h-2">
                 <div className="bg-gradient-to-r from-purple-500 to-blue-500 h-2 rounded-full animate-pulse" style={{width: '60%'}}></div>
               </div>
-              <p className="text-gray-400 text-sm mt-2">This may take 10-30 seconds</p>
+              <p className="text-gray-400 text-sm mt-2">This may take 30-40 seconds</p>
             </div>
           </div>
         )}

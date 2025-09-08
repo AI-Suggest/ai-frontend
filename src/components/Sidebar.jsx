@@ -31,10 +31,6 @@ const Sidebar = ({
   };
 
 
-  useEffect(()=>{
-   console.log(sessions,"sessions______ from sidear file")
-
-  },[])
 
    useEffect(() => {
 

@@ -46,11 +46,19 @@ useEffect(() => {
 
   const handlePreviousChatClick = async (session) => {
   try {
-    console.log(session,"session___")
+    console.log(session, "session___");
+
+    if (!session.id) {
+      // 🛡️ No DB id, so skip API and just load local messages
+      console.log("No chatId found, showing local session only.");
+      setCurrentSession(session);
+      return;
+    }
+
     // fetch full messages from backend
-    console.log(session.id,"sessionod___")
-    const messages = await apiService.getPreviousChat(session.id); // or stabilityAI.getPreviousChat
-console.log("sidebr___",messages)
+    const messages = await apiService.getPreviousChat(session.id);
+    console.log("sidebar___", messages);
+
     // update session with messages
     setCurrentSession({
       ...session,
