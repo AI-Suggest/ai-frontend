@@ -8,6 +8,7 @@ function App() {
 
   useEffect(() => {
     // Check for existing session
+    console.log("helooo")
     const savedUser = localStorage.getItem('user');
  
   console.log(import.meta.env.VITE_API_URL,"hhhhhhhh");

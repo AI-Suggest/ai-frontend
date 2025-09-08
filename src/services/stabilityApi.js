@@ -5,7 +5,7 @@ class StabilityAIService {
   constructor() {
     this.baseUrl = import.meta.env.DEV
   ? "https://logoimage-ai.onrender.com/api"
-  : "import.meta.env.VITE_API_URL";
+  : "https://logoimage-ai.onrender.com/api";
   }
 
   async generateImage(prompt, options = {}) {

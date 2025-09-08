@@ -1,7 +1,7 @@
 // API service for backend communication
 const API_BASE_URL = import.meta.env.DEV
-  ? "http://localhost:3000/api"
-  : "import.meta.env.VITE_API_URL";
+  ? "https://logoimage-ai.onrender.com/api"
+  : "https://logoimage-ai.onrender.com/api";
 
 class ApiService {
   constructor() {
