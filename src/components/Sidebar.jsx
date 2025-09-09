@@ -47,7 +47,7 @@ const Sidebar = ({
 
   return (
   <div
-  className={`fixed top-0 left-0 h-full w-80 bg-[#0d0d0d] border-r border-gray-800 flex flex-col font-inter
+  className={`fixed top-0 left-0 z-[1] h-full w-80 bg-[#0d0d0d] border-r border-gray-800 flex flex-col font-inter
     transform transition-transform duration-300
     ${isOpen ? 'translate-x-0' : '-translate-x-full'}
     md:translate-x-0
