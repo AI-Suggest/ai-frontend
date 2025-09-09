@@ -46,18 +46,17 @@ useEffect(() => {
 
   const handlePreviousChatClick = async (session) => {
   try {
-    console.log(session, "session___");
 
     if (!session.id) {
       // 🛡️ No DB id, so skip API and just load local messages
-      console.log("No chatId found, showing local session only.");
+      
       setCurrentSession(session);
       return;
     }
 
     // fetch full messages from backend
     const messages = await apiService.getPreviousChat(session.id);
-    console.log("sidebar___", messages);
+
 
     // update session with messages
     setCurrentSession({
@@ -120,8 +119,7 @@ useEffect(() => {
 
 
   const updateSession = (sessionId, updatedSession) => {
-    console.log(sessionId,"sessionId___");
-    console.log(updatedSession,"updatedSession____")
+    
   setSessions((prev) =>
     prev.map((session) =>
       session.id === sessionId

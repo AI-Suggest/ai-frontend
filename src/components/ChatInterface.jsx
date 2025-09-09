@@ -149,7 +149,7 @@ const generateImage = async (userPrompt) => {
     // 4) Call backend
     // IMPORTANT: apiService should not include chatId in the payload if it's undefined.
   const res = await apiService.generateImage(userPrompt, serverChatId);
-console.log("Backend response:", res);
+
 
 const backendChatId = res?.chatId;
 const latestAssistant = res?.newMessage;
@@ -168,7 +168,7 @@ const latestAssistant = res?.newMessage;
 
     onUpdateSession(currentSession.id, updatedSession);
   } catch (error) {
-    console.log(userPrompt,"userPrompt__")
+
     console.error("Image generation failed:", error);
        const errorMessage = {
       id: Date.now().toString(),
