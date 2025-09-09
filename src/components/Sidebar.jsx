@@ -64,7 +64,7 @@ const Sidebar = ({
       className="font-semibold text-xl font-inter drop-shadow-sm"
       style={{ color: "#765be9" }}
     >
-      Logo Studio
+      AI Suggest
     </h1>
   </div>
 
