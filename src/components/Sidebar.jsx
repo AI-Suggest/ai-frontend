@@ -43,7 +43,7 @@ const Sidebar = ({
       return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
   
-      const userInitial = user?.name ? user.name.charAt(0).toUpperCase() : "U";
+  const userInitial = user?.user?.username ? user?.user?.username.charAt(0).toUpperCase() : "U";
 
   return (
   <div
@@ -169,7 +169,7 @@ const Sidebar = ({
             </span>
           </div>
           <div className="min-w-0">
-            <p className="text-white text-sm font-inter font-medium truncate">{user?.name}</p>
+            <p className="text-white text-sm font-inter font-medium truncate">{user?.user.username}</p>
             
           </div>
         </div>
@@ -177,8 +177,8 @@ const Sidebar = ({
         {open && (
           <div className="absolute  top-[-145px] left-0  w-48 bg-neutral-800 border border-gray-700 rounded-xl shadow-lg overflow-hidden">
             <div className="px-4 py-3 border-b border-gray-700">
-              <p className="text-white text-sm font-medium font-inter  truncate">{user?.name}</p>
-              <p className="text-gray-400 text-xs truncate font-inter ">{user?.email}</p>
+              <p className="text-white text-sm font-medium font-inter  truncate">{user?.user.username}</p>
+              <p className="text-gray-400 text-xs truncate font-inter ">{user?.user.email}</p>
             </div>
             <button
               onClick={() => alert("Upgrade Plan clicked")}
