@@ -9,7 +9,7 @@ class ApiService {
   }
 
   async request(endpoint, options = {}) {
- 
+
     const url = `${this.baseUrl}${endpoint}`;
     const config = {
       headers: {

@@ -86,7 +86,7 @@ const generateImage = async (userPrompt) => {
     setError("❌ Incorrect prompt. Please enter a valid description.");
     return true;
   }
-
+setIsGenerating(true)
 
   try {
     let currentSession = session;
