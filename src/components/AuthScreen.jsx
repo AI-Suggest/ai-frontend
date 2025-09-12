@@ -237,15 +237,22 @@ const getPasswordError = (password) => {
                 <input name="email"  value={formData.email}
                     onChange={handleChange}  type="email" placeholder="Email" required />
               </div>
-              <div className="field">
+              <div className="field relative">
                 <input
                   name="password"
-                  type="password"
+                   type={showPassword ? 'text' : 'password'}
                   placeholder="Password"
                   required
                   value={formData.password}
                     onChange={handleChange}
                 />
+                 <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+                >
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
               </div>
               <div className="actions">
                <button type="submit" className="btn" disabled={isLoading}>
@@ -281,15 +288,22 @@ const getPasswordError = (password) => {
                 />
               </div>
              
-              <div className="field">
+              <div className="field relative">
                 <input className='focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparen'
                   name="password"
-                  type="password"
+                   type={showPassword ? 'text' : 'password'}
                   value={formData.password}
                     onChange={handleChange}
                   placeholder="Create password"
                   required
                 />
+                   <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+                >
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
               </div>
                {passwordError && <p className="text-red-500 text-sm">{passwordError}</p>}
               <div className="actions">
