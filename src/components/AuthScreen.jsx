@@ -211,8 +211,7 @@ const getPasswordError = (password) => {
             </div>
           </div>
           <p className="tag">
-            Personalized suggestions powered by AI — for products, content, and
-            decisions. Sign in to access your dashboard.
+         Turn your words into visuals — AI-powered text-to-image generation. Sign in to create now.
           </p>
         </div>
 
