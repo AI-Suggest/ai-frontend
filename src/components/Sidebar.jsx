@@ -11,6 +11,7 @@ const Sidebar = ({
   onDeleteSession,
   user,
   onLogout,
+  setActivePage
 }) => {
   if (!isOpen) return null;
 
@@ -44,6 +45,8 @@ const Sidebar = ({
     }, []);
   
   const userInitial = user?.user?.username ? user?.user?.username.charAt(0).toUpperCase() : "U";
+
+ 
 
   return (
   <div
@@ -84,7 +87,7 @@ const Sidebar = ({
             Workspace
           </h3>
           <div className="space-y-2">
-            <button className="w-full text-left font-inter p-2 md:p-2 sm:p-2 lg:p-2 text-sm  sm:text-sm   md:text-lg lg:text-lg text-gray-300 rounded-md hover:bg-[#1a1a1a] transition">
+            <button  onClick={() => setActivePage("prompts")} className="w-full text-left font-inter p-2 md:p-2 sm:p-2 lg:p-2 text-sm  sm:text-sm   md:text-lg lg:text-lg text-gray-300 rounded-md hover:bg-[#1a1a1a] transition">
               Prompts library
             </button>
 
@@ -102,7 +105,7 @@ const Sidebar = ({
           </div>
 
           <div className="space-y-2">
-            {sessions.map((session) => (
+            {sessions.map((session, index) => (
               <div
                 key={session.id}
                 className={`group flex items-start gap-3 p-3 rounded-xl cursor-pointer transition-all duration-200 ${currentSession?.id === session.id
@@ -127,7 +130,7 @@ const Sidebar = ({
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    onDeleteSession(session.id);
+                    onDeleteSession(session.id,index);
                   }}
                   className="opacity-0 group-hover:opacity-100 p-1.5 hover:bg-red-500/20 rounded-lg transition-all duration-200"
                 >

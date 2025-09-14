@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from './Sidebar';
 import ChatInterface from './ChatInterface';
+import PromptsLibrary from './PromptsLibrary';
+import ChatHeader from './ChatHeader';
 import { apiService } from '../services/api';
 import { storage } from '../utils/storage';
 // import { getSessions } from '../services/api';
@@ -10,6 +12,7 @@ const MainApp = ({ user, onLogout }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [currentSession, setCurrentSession] = useState(null);
   const [sessions, setSessions] = useState([]);
+  const [activePage, setActivePage] = useState("chat")
   // const [isLoading, setIsLoading] = useState(true);
 useEffect(() => {
   function handleUpdateSessionId(e) {
@@ -99,23 +102,10 @@ useEffect(() => {
  
     setSessions((prev) => [newSession, ...prev]);
     setCurrentSession(newSession);
+     setActivePage("chat");
   };
 
-  // const updateSession = async (sessionId, updatedSession) => {
-  //   setSessions((prev) =>
-  //     prev.map((session) =>
-  //       session.id === sessionId
-  //         ? { ...session, ...updatedSession }
-  //         : session
-  //     )
-  //   );
 
-  //   if (currentSession?.id === sessionId) {
-  //     setCurrentSession((prev) =>
-  //       prev ? { ...prev, ...updatedSession } : null
-  //     );
-  //   }
-  // };
 
 
   const updateSession = (sessionId, updatedSession) => {
@@ -135,28 +125,45 @@ useEffect(() => {
     return prev;
   });
 };
-  const deleteSession = async (sessionId) => {
-    try {
-      await stabilityAI.deleteGeneration(sessionId);
-      setSessions((prev) => prev.filter((session) => session.id !== sessionId));
+  // const deleteSession = async (sessionId) => {
+  //   console.log(sessionId,"sessionId__")
+  //   try {
+  //     await stabilityAI.deleteGeneration(sessionId);
+  //     setSessions((prev) => prev.filter((session) => session.id !== sessionId));
 
-      if (currentSession?.id === sessionId) {
+  //     if (currentSession?.id === sessionId) {
+  //       setCurrentSession(null);
+  //     }
+  //   } catch (err) {
+  //     console.error("Failed to delete session:", err);
+  //   }
+  // };
+  
+const deleteSession = async (sessionId, index) => {
+  console.log(sessionId, "sessionId__");
+
+  try {
+    if (!sessionId) {
+      // Remove only the clicked new chat by index
+      setSessions((prev) => prev.filter((_, i) => i !== index));
+      if (!currentSession?.id) {
         setCurrentSession(null);
       }
-    } catch (err) {
-      console.error("Failed to delete session:", err);
+      return;
     }
-  };
-  // if (isLoading) {
-  //   return (
-  //     <div className="min-h-screen bg-[#0d1b2a] from-slate-900  to-slate-900 flex items-center justify-center">
-  //       <div className="text-center">
-  //         <div className="w-12 h-12 border-4 border-purple-500/30 border-t-purple-500 rounded-full animate-spin mx-auto mb-4"></div>
-  //         <p className="text-white">Loading your workspace...</p>
-  //       </div>
-  //     </div>
-  //   );
-  // }
+
+    // Saved chat (with id)
+    await stabilityAI.deleteGeneration(sessionId);
+    setSessions((prev) => prev.filter((session) => session.id !== sessionId));
+
+    if (currentSession?.id === sessionId) {
+      setCurrentSession(null);
+    }
+  } catch (err) {
+    console.error("Failed to delete session:", err);
+  }
+};
+
 
   return (
     <div className="flex h-screen bg-neutral-800">
@@ -166,24 +173,35 @@ useEffect(() => {
         sessions={sessions}
         currentSession={currentSession}
         onNewSession={createNewSession}
-        onSelectSession={handlePreviousChatClick}
+         onSelectSession={(session) => {
+        handlePreviousChatClick(session);
+        setActivePage("chat"); // 🔹 ensure chat page shows when session clicked
+      }}
         onDeleteSession={deleteSession}
         user={user}
         onLogout={onLogout}
+         setActivePage={setActivePage}
       />
       
       <div className={`flex-1 transition-all duration-300
   ${isSidebarOpen ? 'ml-0 md:ml-80' : 'ml-0'}
 `}>
-        <ChatInterface
-          session={currentSession}
-          user={user}
-           setCurrentSession={setCurrentSession}
-          onUpdateSession={updateSession}
-          onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
-          isSidebarOpen={isSidebarOpen}
-           onLogout={onLogout}
-        />
+      <ChatHeader user={user} isSidebarOpen={isSidebarOpen} onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}  onLogout={onLogout}/>
+        {activePage === "chat" && (
+
+    <ChatInterface
+      session={currentSession}
+      user={user}
+      setCurrentSession={setCurrentSession}
+      onUpdateSession={updateSession}
+      onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
+      isSidebarOpen={isSidebarOpen}
+      onLogout={onLogout}
+    />
+  )}
+
+  {activePage === "prompts" && <PromptsLibrary />}
+    
       </div>
     </div>
   );
