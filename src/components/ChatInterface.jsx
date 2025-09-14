@@ -267,7 +267,7 @@ const downloadImage = async (url, filename = "download.png") => {
   if (!session) {
     return (
         <div className="flex-1 flex flex-col">
-{/*         <ChatHeader user={user} isSidebarOpen={isSidebarOpen} onToggleSidebar={onToggleSidebar}  onLogout={onLogout}/> */}
+
     
     <div className='bg-neutral-900'>
           <div className="flex-1 flex items-center  justify-center p-4 sm:p-8">
