@@ -338,7 +338,7 @@ const downloadImage = async (url, filename = "download.png") => {
 
   return (
     <div className="flex-1 flex flex-col h-screen">
-      <ChatHeader user={user} isSidebarOpen={isSidebarOpen} onToggleSidebar={onToggleSidebar}  onLogout={onLogout}/>
+     
 
       <div className="flex-1 overflow-y-auto p-4 space-y-6 bg-neutral-900">
         
