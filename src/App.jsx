@@ -1,17 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import AuthScreen from './components/AuthScreen';
-import MainApp from './components/MainApp';
+import React, { useState, useEffect } from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import AuthScreen from "./components/AuthScreen";
+import MainApp from "./components/MainApp";
+import ForgotPassword from "./components/ForgetPassword";
+import ResetPassword from "./components/ResetPassword";
 
 function App() {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check for existing session
-    console.log("helooo")
-    const savedUser = localStorage.getItem('user');
- 
-  console.log(import.meta.env.VITE_API_URL,"hhhhhhhh");
+    const savedUser = localStorage.getItem("user");
     if (savedUser) {
       setUser(JSON.parse(savedUser));
     }
@@ -20,17 +19,17 @@ function App() {
 
   const handleLogin = (userData) => {
     setUser(userData);
-localStorage.setItem('user', JSON.stringify(userData));
+    localStorage.setItem("user", JSON.stringify(userData));
   };
 
   const handleLogout = () => {
     setUser(null);
-    localStorage.removeItem('user');
+    localStorage.removeItem("user");
   };
 
   if (isLoading) {
     return (
-      <div className="min-h-screen  bg-[#0d1b2a] from-slate-900 to-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-[#0d1b2a] flex items-center justify-center">
         <div className="animate-pulse">
           <div className="w-8 h-8 bg-purple-500 rounded-full"></div>
         </div>
@@ -39,13 +38,19 @@ localStorage.setItem('user', JSON.stringify(userData));
   }
 
   return (
-   <>
-      {!user ? (
-        <AuthScreen onLogin={handleLogin} />
-      ) : (
-        <MainApp user={user} onLogout={handleLogout} />
-      )}
-</>
+    <BrowserRouter>
+      <Routes>
+        {!user ? (
+          <>
+            <Route path="/" element={<AuthScreen onLogin={handleLogin} />} />
+            <Route path="/forgotPassword" element={<ForgotPassword />} />
+            <Route path="/reset-password/:token" element={<ResetPassword />} />
+          </>
+        ) : (
+          <Route path="/*" element={<MainApp user={user} onLogout={handleLogout} />} />
+        )}
+      </Routes>
+    </BrowserRouter>
   );
 }
 
