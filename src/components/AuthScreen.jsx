@@ -1,13 +1,16 @@
-import React, { useState,useEffect,useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Zap, Sparkles, Eye, EyeOff } from 'lucide-react';
 import ParticleBackground from './ParticleBackground';
 import { apiService } from '../services/api';
+import ForgotPassword from "./ForgetPassword";
 // import { login, signup, getProfile } from "../services/api";
 
 const AuthScreen = ({ onLogin }) => {
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
-  const[passwordError,setPasswordError]= useState("")
+  const [passwordError, setPasswordError] = useState("");
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
+  const [isLoadingPassword, setIsLoadingPassword] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -17,72 +20,72 @@ const AuthScreen = ({ onLogin }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const canvasRef = useRef(null);
- const handleSubmit = async (e) => {
-  e.preventDefault();
-  setIsLoading(true);
-  setError('');
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError('');
 
-  // 👉 Check password validity before API call
+    // 👉 Check password validity before API call
 
-  try {
-    let user;
-    if (isLogin) {
-      user = await apiService.login({
-        email: formData.email,
-        password: formData.password,
-      });
-       onLogin(user);
-    } else {
+    try {
+      let user;
+      if (isLogin) {
+        user = await apiService.login({
+          email: formData.email,
+          password: formData.password,
+        });
+        onLogin(user);
+      } else {
         const passwordErr = getPasswordError(formData.password);
-  if (passwordErr) {
-    setPasswordError(passwordErr);
-    setIsLoading(false);
-    return; // 🚫 stop submit if password invalid
-  }
-    
-      user = await apiService.signup({
-        username: formData.name,
-        email: formData.email,
-        password: formData.password,
-      });
-    }
-    // setIsLogin(true);
- 
-         setSuccessMessage(user.message);
+        if (passwordErr) {
+          setPasswordError(passwordErr);
+          setIsLoading(false);
+          return; // 🚫 stop submit if password invalid
+        }
+
+        user = await apiService.signup({
+          username: formData.name,
+          email: formData.email,
+          password: formData.password,
+        });
+      }
+      // setIsLogin(true);
+
+      setSuccessMessage(user.message);
       setFormData({ name: '', email: '', password: '' });
 
-    // ✅ Only call when user is available
-   
-
-  } catch (error) {
-    setError(error.message || 'Authentication failed. Please try again.');
-  } finally {
-    
-    setIsLoading(false); // ✅ only reset loading state here
-  }
-};
+      // ✅ Only call when user is available
 
 
-const getPasswordError = (password) => {
-  if (password.length < 8) return "Password must be at least 8 characters.";
-  if (!/[A-Z]/.test(password)) return "Add at least one uppercase letter.";
-  if (!/[a-z]/.test(password)) return "Add at least one lowercase letter.";
-  if (!/\d/.test(password)) return "Add at least one number.";
-  if (!/[@$!%*?&]/.test(password)) return "Add at least one special character.";
-  return ""; // valid
-};
+    } catch (error) {
+      setError(error.message || 'Authentication failed. Please try again.');
+    } finally {
+
+      setIsLoading(false); // ✅ only reset loading state here
+    }
+  };
+
+
+  const getPasswordError = (password) => {
+    if (password.length < 8) return "Password must be at least 8 characters.";
+    if (!/[A-Z]/.test(password)) return "Add at least one uppercase letter.";
+    if (!/[a-z]/.test(password)) return "Add at least one lowercase letter.";
+    if (!/\d/.test(password)) return "Add at least one number.";
+    if (!/[@$!%*?&]/.test(password)) return "Add at least one special character.";
+    return ""; // valid
+  };
 
   const handleChange = (e) => {
-  const { name, value } = e.target;
-  setFormData({ ...formData, [name]: value });
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
 
-  if (name === "password") {
-    setPasswordError(getPasswordError(value));
-  }else{
-     setPasswordError("");
-  }
-     setError('');
-};
+    if (name === "password") {
+      setPasswordError(getPasswordError(value));
+    } else {
+      setPasswordError("");
+    }
+    setError('');
+  };
   const handleDemoLogin = () => {
     const demoUser = {
       id: 'demo-user',
@@ -92,12 +95,12 @@ const getPasswordError = (password) => {
     };
     onLogin(demoUser);
   };
-    const handleCreateAccountClick = () => {
+  const handleCreateAccountClick = () => {
     setIsLogin(true); // Switch to 'Create account' view
     setError('');// Reset the user input (or any other state)
     setPasswordError("")
   };
- useEffect(() => {
+  useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
     let w = (canvas.width = window.innerWidth);
@@ -177,7 +180,7 @@ const getPasswordError = (password) => {
     return () => window.removeEventListener("resize", resize);
   }, []);
   return (
-       <div>
+    <div>
       <div className="bg-gradient" />
       <canvas ref={canvasRef} id="particles" />
       <div className="wrap">
@@ -211,55 +214,79 @@ const getPasswordError = (password) => {
             </div>
           </div>
           <p className="tag">
-         Turn your words into visuals — AI-powered text-to-image generation. Sign in to create now.
+            Turn your words into visuals — AI-powered text-to-image generation. Sign in to create now.
           </p>
         </div>
 
         {/* Auth Card */}
         <div className="hero-card">
-            {error && (
-              <div className="mb-3 p-2 bg-red-500/20 border border-red-500/30 rounded-lg">
-                <p className="text-red-200 text-md">{error}</p>
-              </div>
-            )}
-            {successMessage && (
-  <div className="mb-3 p-2 bg-green-500/20 border border-green-500/30 rounded-lg">
-    <p className="text-green-200 text-lg">{successMessage}</p>
-  </div>
-)}
-          {isLogin ? (
+          {error && (
+            <div className="mb-3 p-2 bg-red-500/20 border border-red-500/30 rounded-lg">
+              <p className="text-red-200 text-md">{error}</p>
+            </div>
+          )}
+          {successMessage && (
+            <div className="mb-3 p-2 bg-green-500/20 border border-green-500/30 rounded-lg">
+              <p className="text-green-200 text-lg">{successMessage}</p>
+            </div>
+          )}
+
+          {isForgotPassword ? (
+            // 👉 Forgot Password
+            <ForgotPassword onBack={() => setIsForgotPassword(false)} />
+          ) : isLogin ? (
+            // 👉 Login Form
             <form onSubmit={handleSubmit}>
               <h2>Welcome back</h2>
               <p className="lead">
                 Sign in to access AI-powered suggestions tailored for you.
               </p>
               <div className="field">
-                <input name="email"  value={formData.email}
-                    onChange={handleChange}  type="email" placeholder="Email" required />
+                <input
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  type="email"
+                  placeholder="Email"
+                  required
+                />
               </div>
               <div className="field relative">
                 <input
                   name="password"
-                   type={showPassword ? 'text' : 'password'}
+                  type={showPassword ? "text" : "password"}
                   placeholder="Password"
                   required
                   value={formData.password}
-                    onChange={handleChange}
+                  onChange={handleChange}
                 />
-                 <button
+                <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
                 >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                  </button>
+                  {showPassword ? (
+                    <EyeOff className="w-5 h-5" />
+                  ) : (
+                    <Eye className="w-5 h-5" />
+                  )}
+                </button>
               </div>
-              <div className="actions">
-               <button type="submit" className="btn" disabled={isLoading}>
-  {isLoading ? "Loading..." : "Sign in"}
-</button>
 
-            
+              {/* Forgot password link */}
+              <div className="text-sm text-left mb-2">
+                <span
+                  className="cursor-pointer hover:underline text-[var(--accent-3)] ml-1.5"
+                  onClick={() => setIsForgotPassword(true)}
+                >
+                  Forgot Password?
+                </span>
+              </div>
+
+              <div className="actions">
+                <button type="submit" className="btn" disabled={isLoading}>
+                  {isLoading ? "Loading..." : "Sign in"}
+                </button>
               </div>
               <div className="toggle">
                 Don’t have an account?
@@ -267,6 +294,7 @@ const getPasswordError = (password) => {
               </div>
             </form>
           ) : (
+            // 👉 Signup Form
             <form onSubmit={handleSubmit}>
               <h2>Create new account</h2>
               <p className="lead ">
@@ -274,8 +302,14 @@ const getPasswordError = (password) => {
                 instantly.
               </p>
               <div className="field">
-                <input name="name"  value={formData.name}
-                    onChange={handleChange} type="text" placeholder="Full name" required={!isLogin} />
+                <input
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  type="text"
+                  placeholder="Full name"
+                  required={!isLogin}
+                />
               </div>
               <div className="field ">
                 <input
@@ -287,50 +321,44 @@ const getPasswordError = (password) => {
                   required
                 />
               </div>
-             
               <div className="field relative">
-                <input className='focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparen'
+                <input
+                  className="focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   name="password"
-                   type={showPassword ? 'text' : 'password'}
+                  type={showPassword ? "text" : "password"}
                   value={formData.password}
-                    onChange={handleChange}
+                  onChange={handleChange}
                   placeholder="Create password"
                   required
                 />
-                   <button
+                <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
                 >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                  </button>
+                  {showPassword ? (
+                    <EyeOff className="w-5 h-5" />
+                  ) : (
+                    <Eye className="w-5 h-5" />
+                  )}
+                </button>
               </div>
-               {passwordError && <p className="text-red-500 text-sm">{passwordError}</p>}
+              {passwordError && <p className="text-red-500 text-sm">{passwordError}</p>}
               <div className="actions">
-                <button
-  type="submit"
-  className="btn"
-  disabled={isLoading} // disables button while loading
->
-  {isLoading ? "Creating..." : "Create account"} 
-</button>
-                {/* <button
-                  type="button"
-                  className="btn secondary"
-                  onClick={() => fillDemo("signup")}
-                >
-                  Use demo
-                </button> */}
+                <button type="submit" className="btn" disabled={isLoading}>
+                  {isLoading ? "Creating..." : "Create account"}
+                </button>
               </div>
               <div className="toggle">
                 Already a member?
-                <span onClick={handleCreateAccountClick}> Sign in</span>
+                <span onClick={() => setIsLogin(true)}> Sign in</span>
               </div>
             </form>
           )}
         </div>
+
       </div>
-   
+
     </div>
   );
 };
