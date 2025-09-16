@@ -14,7 +14,7 @@ const ForgotPassword = ({ onBack }) => {
         setSuccessMessage("");
 
         try {
-            const response = await fetch("http://localhost:3000/api/auth/forgot-password", {
+            const response = await fetch("https://logoimage-ai.onrender.com/api/auth/forgot-password", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -79,3 +79,4 @@ const ForgotPassword = ({ onBack }) => {
 };
 
 export default ForgotPassword;
+
