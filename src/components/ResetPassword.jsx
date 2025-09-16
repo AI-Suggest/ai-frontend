@@ -52,7 +52,7 @@ const ResetPassword = ({ onBack }) => {
             setIsLoading(true);
             console.log("token",token)
             const response = await fetch(
-                `http://localhost:3000/api/auth/reset-password/${token}`,
+                `https://logoimage-ai.onrender.com/api/auth/reset-password/${token}`,
                 {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -268,3 +268,4 @@ const ResetPassword = ({ onBack }) => {
 };
 
 export default ResetPassword;
+
